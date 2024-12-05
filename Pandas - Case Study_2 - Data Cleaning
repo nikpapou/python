@@ -1,0 +1,54 @@
+from unittest.mock import inplace
+
+import pandas as pd
+from fontTools.subset import subset
+
+data = {
+    'Name': ['John Doe', 'Jane Smith', 'Bill Gates', 'Elon Musk', 'John Doe', None, 'Steve Jobs', 'Mark Zuckerberg','Jack Dorsey', 'Sundar Pichai'],
+    'Previous_Team': ['Team Alpha', 'Team Bravo', 'Team Charlie', 'Team Delta', 'Team Alpha', 'Team Echo', 'Team Foxtrot', 'Team Golf', 'Team Hotel', None],
+    'Current_Team': ['Team Bravo', 'Team Charlie', 'Team Delta', 'Team Echo', 'Team Bravo', 'Team Foxtrot', 'Team Golf', 'Team Hotel', 'Team India', 'Team Juliet'],
+    'Contract_Fee_Millions': [0, 15, 222, 180, 0, 37, 35, 76, 85, 42],
+    'Contract_Transition_Date': ['2021-08-10', '2021-08-31', '2017-08-03', '2018-07-01', '2021-08-10', None, '2014-07-01', '2015-08-30', '2018-07-01', '2017-07-01']
+}
+
+df = pd.DataFrame(data)
+print(df)
+
+#Print the number of missing values in each column.
+print("\nMissing Values per Column:\n", df.isnull().sum(), '\n')
+
+#Fill missing names and previous team entries with 'Unknown'.
+df['Name'] = df['Name'].fillna('Unknown')
+df['Previous_Team'] = df['Previous_Team'].fillna('Unknown')
+
+# Drop rows with missing contract transition dates
+df = df.dropna(subset=['Contract_Transition_Date'])
+
+print('DataFrame after handling Missing Values: \n', df)
+
+
+#Removing Duplicate Rows
+# 1- Identify the number of duplicate rows.
+print('\nThe Number of Duplicates:', df.duplicated().sum(), '\n')
+# 2- Remove duplicates using .drop_duplicates(). (Συμπεριλαμβάνω το DROP)
+df.drop_duplicates(inplace= True)
+print('\nDataFrame after removing Duplicates:', df)
+
+
+# Renaming Columns
+#    Define a dictionary of new column names.
+new_column_names = {
+    'Name': 'name',
+    'Previous_Team': 'previous_team',
+    'Current_Team': 'current_team',
+    'Contract_Fee_Millions': 'contract_fee_millions',
+    'Contract_Transition_Date': 'contract_transition_date'
+}
+#    Use .rename() to update the column names.
+df = df.rename(columns={'Name': 'name', 'Previous_Team': 'previous_team', 'Current_Team': 'current_team', 'Contract_Fee_Millions': 'contract_fee_millions', 'Contract_Transition_Date': 'contract_transition_date'})
+print("DataFrame after renaming columns: \n", df)
+
+#Replacing Values
+#Replace 'Unknown' in the 'previous_team' column with 'Undisclosed'.
+df['previous_team'] = df['previous_team'].replace('Unknown', 'Undisclosed')
+
