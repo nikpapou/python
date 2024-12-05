@@ -1,0 +1,46 @@
+import pandas as pd
+
+player_data = {
+    'Player': ['Lionel Messi', 'Cristiano Ronaldo', 'Neymar Jr.', 'Kylian Mbappé', 'Robert Lewandowski'],
+    'Team': ['PSG', 'Manchester United', 'PSG', 'PSG', 'Bayern Munich'],
+    'Position': ['Forward', 'Forward', 'Forward', 'Forward', 'Forward']
+}
+df_player = pd.DataFrame(player_data)
+
+performance_data = {
+    'Player': ['Lionel Messi', 'Cristiano Ronaldo', 'Neymar Jr.', 'Kylian Mbappé', 'Robert Lewandowski'],
+    'Goals': [30, 31, 27, 33, 36],
+    'Assists': [15, 12, 17, 15, 9]
+}
+df_performance = pd.DataFrame(performance_data)
+print('Player DataFrame: \n', df_player)
+print('\nPerformance DataFrame: \n', df_performance)
+
+# Define a function to calculate goal-assist ratio
+def calculate_ratio(goals, assists):
+    if assists == 0:
+        return goals
+    return goals / assists
+
+# Add new column
+df_performance['Goal_Assist_Ratio'] = df_performance.apply(lambda row: calculate_ratio(row['Goals'], row['Assists']), axis=1)
+print("Performance DataFrame with Goal-Assist Ratio:\n", df_performance)
+
+# Sort by goals
+sorted_df = df_performance.sort_values(by='Goals', ascending=False)
+
+# Add Rank
+sorted_df['Goal_Rank'] = sorted_df['Goals'].rank(ascending=False)
+
+print("\nNew Sorted DataFrame\n", sorted_df)
+
+
+# Group the players by their teams and calculate the total number of players per team
+grouped_data = df_player.groupby('Team')['Player'].size()
+print("\nGrouped by team:\n", grouped_data)
+
+# Merge the DataFrames on 'Player'
+#merged_data = pd.merge(employees, departments, left_on='employee_id', right_on='department_id')
+merged_data = pd.merge(df_player, df_performance, on='Player')
+#merged_data = pd.merge(df_player, df_performance, on='Player')
+print("\nMerged DataFrames", merged_data)
