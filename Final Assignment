@@ -1,0 +1,56 @@
+from pydoc import describe
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+from matplotlib.pyplot import scatter
+
+df = pd.read_csv('C:/Users/nikpa/OneDrive/Documents/NIKOS/ΣΠΟΥΔΕΣ/ΣΕΜΙΝΑΡΙΑ/Data Analysis/Workearly/PYTHON/Final Assignment/finance_liquor_sales.csv')
+
+#print(df.shape)
+#print(df.columns)
+df.dropna(inplace=True)
+#print(df.describe())
+#print(df['zip_code'].unique())
+#print("Number of Zip_code: ", df['zip_code'].count())
+#print(df['item_description'].unique())
+#print("\nNumber of Items: ", df['item_description'].count())
+
+df["date"] = pd.to_datetime(df["date"])
+dated_df = df[(df["date"].dt.year >= 2016) & (df["date"].dt.year <= 2019)].reset_index()
+#print(dated_df.shape)
+
+#Task 1
+most_popular = dated_df.groupby(['zip_code', 'item_number'])['bottles_sold'].sum().reset_index()
+most_popular = most_popular.sort_values(['zip_code', 'bottles_sold'], ascending=[True, False])
+most_popular = most_popular.drop_duplicates(subset='zip_code')
+print("\nMost Popular Item in each Zipcode:\n", most_popular)
+
+plt.figure(figsize=(12,6))
+plt.bar(most_popular["zip_code"].astype(str), most_popular["bottles_sold"], color="orange", edgecolor="black")
+plt.xlabel('Zip Code')
+plt.ylabel('Bottles Sold', rotation=90)
+plt.title("Max Bottles Sold in each Zipcode")
+plt.grid(axis='y')
+plt.xticks(rotation=90)
+plt.yticks(range(0, 1600, 50))
+plt.ylim(0, 1600)
+plt.show()
+
+#Task 2
+dated_df['sales_per_store'] = dated_df['bottles_sold'] * df['state_bottle_retail']
+total_sales_per_store = dated_df.groupby('store_name')['sales_per_store'].sum().reset_index()
+total_sales = total_sales_per_store['sales_per_store'].sum()
+total_sales_per_store['sales_percentage'] = (total_sales_per_store['sales_per_store'] / total_sales) * 100
+total_sales_per_store = total_sales_per_store.sort_values(by='sales_percentage', ascending=False)
+print(total_sales_per_store[['store_name', 'sales_per_store', 'sales_percentage']])
+
+top_20_stores = total_sales_per_store.sort_values(by='sales_percentage', ascending=False).head(20)
+top_20_stores = top_20_stores[::-1]
+plt.figure(figsize=(12,6))
+plt.barh(top_20_stores['store_name'], top_20_stores['sales_percentage'], color='skyblue', edgecolor="black")
+plt.grid(axis='x')
+plt.xticks(range(0, 40, 2))
+plt.xlabel('Sales Percentage %')
+plt.ylabel('Store Name')
+plt.title('Sales Percentage for Top 20 Stores (dollars)')
+plt.show()
